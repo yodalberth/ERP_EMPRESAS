@@ -296,14 +296,19 @@ def validate(*view_types):
 def relaxng(view_type):
     """ Return a validator for the given view type, or None. """
     if view_type not in _relaxng_cache:
-        with tools.file_open(os.path.join('base', 'rng', '%s_view.rng' % view_type)) as frng:
-            try:
+        try:
+            path = os.path.join('base', 'rng', f'{view_type}_view.rng')
+            with tools.file_open(path) as frng:
                 relaxng_doc = etree.parse(frng)
-                _relaxng_cache[view_type] = etree.RelaxNG(relaxng_doc)
-            except Exception:
-                _logger.exception('Failed to load RelaxNG XML schema for views validation')
-                _relaxng_cache[view_type] = None
-    return _relaxng_cache[view_type]
+            _relaxng_cache[view_type] = etree.RelaxNG(relaxng_doc)
+        except Exception as exc:
+            _logger.warning(
+                "Failed to load RelaxNG XML schema for %s views: %s",
+                view_type,
+                exc,
+            )
+            _relaxng_cache[view_type] = None
+    return _relaxng_cache.get(view_type)
 
 
 @validate('calendar', 'graph', 'pivot', 'search', 'list', 'activity')

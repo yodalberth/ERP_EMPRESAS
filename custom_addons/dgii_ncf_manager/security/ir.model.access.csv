@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+ncf_range_manager_all,NCF Range Manager,model_ncf_range,dgii_ncf_manager.group_fiscal_manager,1,1,1,1
+ncf_range_user,NCF Range User,model_ncf_range,base.group_user,1,0,0,0
+import_ncf_wizard,Import NCF Wizard,model_import_ncf_wizard,dgii_ncf_manager.group_fiscal_manager,1,1,1,1

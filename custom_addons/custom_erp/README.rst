@@ -11,7 +11,9 @@ Features
   generated.
 * Adds an optional NCF field on invoices.
 * Adds a checkbox in the Point of Sale configuration to require NCF.
-* Placeholder hooks for purchases and payroll integration.
+* Integrates with standard sales, purchases, inventory, and accounting
+  modules without relying on Enterprise features.
+* Placeholder hooks for payroll integration.
 
 The module depends only on community editions of core apps and can be
 installed alongside standard Odoo modules.

@@ -6,8 +6,7 @@
     'author': 'Your Company',
     'license': 'LGPL-3',
     'depends': [
-        'account',
-        'custom_erp'
+        'account'
     ],
     'data': [
         'security/dgii_ncf_security.xml',
@@ -20,5 +19,5 @@
         'data/cron.xml',
     ],
     'installable': True,
-    'application': False,
+    'application': True,
 }

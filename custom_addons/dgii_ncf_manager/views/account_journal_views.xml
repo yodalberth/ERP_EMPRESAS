@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <xpath expr="//group/group" position="inside">
                 <field name="usar_ncf"/>
-                <field name="default_ncf_type" attrs="{'invisible': [('usar_ncf','=',False)]}"/>
+                <field name="default_ncf_type" modifiers="{'invisible': [('usar_ncf', '=', False)]}"/>
             </xpath>
         </field>
     </record>

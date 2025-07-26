@@ -38,7 +38,9 @@ class NCFRange(models.Model):
                 ('sequence_end', '>=', rec.sequence_start),
             ], limit=1)
             if overlaps:
-                raise ValidationError(_('NCF range overlaps with existing range.'))
+                raise ValidationError(
+                    _('NCF range overlaps with existing range.')
+                )
 
     @api.depends('expiration_date', 'current_ncf')
     def _compute_state(self):

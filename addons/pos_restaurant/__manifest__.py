@@ -10,10 +10,12 @@
     'summary': 'Restaurant extensions for the Point of Sale ',
     'description': """
 
-This module adds several features to the Point of Sale that are specific to restaurant management:
+This module adds several features to the Point of Sale that are
+specific to restaurant management:
 - Bill Printing: Allows you to print a receipt before the order is paid
 - Bill Splitting: Allows you to split an order into different orders
-- Kitchen Order Printing: allows you to print orders updates to kitchen or bar printers
+- Kitchen Order Printing: allows you to print orders updates to kitchen
+  or bar printers
 
 """,
     'depends': ['point_of_sale'],
@@ -32,7 +34,11 @@ This module adds several features to the Point of Sale that are specific to rest
     'assets': {
         'point_of_sale._assets_pos': [
             'pos_restaurant/static/src/**/*',
-            ('after', 'point_of_sale/static/src/scss/pos.scss', 'pos_restaurant/static/src/scss/restaurant.scss'),
+            (
+                'after',
+                'point_of_sale/static/src/scss/pos.scss',
+                'pos_restaurant/static/src/scss/restaurant.scss'
+            ),
         ],
         'web.assets_backend': [
             'point_of_sale/static/src/scss/pos_dashboard.scss',

@@ -78,6 +78,11 @@ class NCFRange(models.Model):
 
     def assign_ncf(self):
         self.ensure_one()
+        # Refresh the state in case the range expired since last computation
+        self._compute_state()
+        today = fields.Date.today()
+        if self.expiration_date and self.expiration_date < today:
+            raise ValidationError(_('NCF range has expired.'))
         if self.state != 'active':
             raise ValidationError(_('NCF range is not active.'))
         ncf = self.current_ncf or self.sequence_start

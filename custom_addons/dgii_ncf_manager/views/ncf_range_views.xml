@@ -69,5 +69,5 @@
     </record>
 
     <menuitem id="menu_dgii_ncf_root" name="DGII" sequence="60" groups="dgii_ncf_manager.group_fiscal_manager"/>
-    <menuitem id="menu_ncf_range" name="Rangos de NCF" parent="menu_dgii_ncf_root" action="action_ncf_range"/>
+    <menuitem id="menu_ncf_range" name="Rangos de NCF" parent="menu_dgii_ncf_root" action="action_ncf_range" groups="dgii_ncf_manager.group_fiscal_manager"/>
 </odoo>

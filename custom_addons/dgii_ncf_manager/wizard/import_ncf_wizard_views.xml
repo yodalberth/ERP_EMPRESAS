@@ -24,5 +24,5 @@
         <field name="target">new</field>
     </record>
 
-    <menuitem id="menu_import_ncf" name="Importar Rangos" parent="menu_dgii_ncf_root" action="action_import_ncf_wizard"/>
+    <menuitem id="menu_import_ncf" name="Importar Rangos" parent="menu_dgii_ncf_root" action="action_import_ncf_wizard" groups="dgii_ncf_manager.group_fiscal_manager"/>
 </odoo>

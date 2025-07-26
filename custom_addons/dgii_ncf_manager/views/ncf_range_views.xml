@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_ncf_range_tree" model="ir.ui.view">
+        <field name="name">ncf.range.tree</field>
+        <field name="model">ncf.range</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="ncf_type"/>
+                <field name="sequence_start"/>
+                <field name="sequence_end"/>
+                <field name="current_ncf"/>
+                <field name="expiration_date"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_ncf_range_form" model="ir.ui.view">
+        <field name="name">ncf.range.form</field>
+        <field name="model">ncf.range</field>
+        <field name="arch" type="xml">
+            <form string="Rango de NCF">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="ncf_type"/>
+                        <field name="sequence_start"/>
+                        <field name="sequence_end"/>
+                        <field name="current_ncf" readonly="1"/>
+                        <field name="expiration_date"/>
+                        <field name="state" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="ncf_range_kanban" model="ir.ui.view">
+        <field name="name">ncf.range.kanban</field>
+        <field name="model">ncf.range</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_small_columns">
+                <field name="name"/>
+                <field name="ncf_type"/>
+                <field name="current_ncf"/>
+                <field name="expiration_date"/>
+                <field name="state"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click">
+                            <strong><field name="name"/></strong>
+                            <div><field name="ncf_type"/></div>
+                            <div>Actual: <field name="current_ncf"/></div>
+                            <div>Vence: <field name="expiration_date"/></div>
+                            <div><field name="state"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="action_ncf_range" model="ir.actions.act_window">
+        <field name="name">Rangos de NCF</field>
+        <field name="res_model">ncf.range</field>
+        <field name="view_mode">tree,form,kanban</field>
+        <field name="help">Administrar rangos de NCF de la DGII</field>
+    </record>
+
+    <menuitem id="menu_dgii_ncf_root" name="DGII" sequence="60" groups="dgii_ncf_manager.group_fiscal_manager"/>
+    <menuitem id="menu_ncf_range" name="Rangos de NCF" parent="menu_dgii_ncf_root" action="action_ncf_range"/>
+</odoo>

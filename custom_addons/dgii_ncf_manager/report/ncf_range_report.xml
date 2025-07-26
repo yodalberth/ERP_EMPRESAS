@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_ncf_range_report" model="ir.actions.report">
+        <field name="name">Reporte de Rangos NCF</field>
+        <field name="model">ncf.range</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">dgii_ncf_manager.ncf_range_report_template</field>
+    </record>
+</odoo>

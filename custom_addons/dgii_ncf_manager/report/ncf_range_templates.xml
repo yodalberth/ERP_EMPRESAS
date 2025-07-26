@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="ncf_range_report_template">
+        <t t-call="web.basic_layout">
+            <t t-set="o" t-value="docs[0]"/>
+            <div class="page">
+                <h2>Rango NCF: <t t-esc="o.name"/></h2>
+                <p>Tipo: <t t-esc="o.ncf_type"/></p>
+                <p>Inicio: <t t-esc="o.sequence_start"/> - Fin: <t t-esc="o.sequence_end"/></p>
+                <p>Actual: <t t-esc="o.current_ncf"/></p>
+                <p>Vence: <t t-esc="o.expiration_date"/></p>
+            </div>
+        </t>
+    </template>
+</odoo>

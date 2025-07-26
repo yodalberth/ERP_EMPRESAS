@@ -1258,7 +1258,7 @@ class TestPoSSale(TestPointOfSaleHttpCommon):
         })
         self.main_pos_config.down_payment_product_id = self.env.ref("pos_sale.default_downpayment_product")
         self.main_pos_config.open_ui()
-        self.start_tour("/pos/ui?config_id=%d" % self.main_pos_config.id, 'test_down_payment_displayed', login="accountman")
+        self.start_pos_tour('test_down_payment_displayed', "accountman")
 
     def test_amount_to_invoice(self):
         """
@@ -1408,3 +1408,135 @@ class TestPoSSale(TestPointOfSaleHttpCommon):
         pos_order_id = self.env['pos.order'].sync_from_ui([pos_order])['pos.order'][0]['id']
         pos_order = self.env['pos.order'].browse(pos_order_id)
         self.assertFalse(pos_order.account_move.invoice_payment_term_id)
+
+    def test_settle_order_with_different_uom(self):
+        """Verify that a qty has changed according to UOM"""
+        product_a = self.env['product.product'].create({
+            'name': 'Product A',
+            'available_in_pos': True,
+            'is_storable': True,
+            'lst_price': 10.0,
+        })
+        test_partner = self.env['res.partner'].create({'name': 'Test Partner'})
+        # Create a sale order
+        sale_order = self.env['sale.order'].create({
+            'partner_id': test_partner.id,
+            'order_line': [Command.create({
+                    'product_id': product_a.id,
+                    'name': product_a.name,
+                    'product_uom_qty': 1,
+                    'product_uom':  self.env.ref('uom.product_uom_dozen').id,
+                    'price_unit': product_a.lst_price,
+                })]
+        })
+        sale_order.action_confirm()
+
+        self.main_pos_config.open_ui()
+        self.start_pos_tour('PoSSettleQuotation', login="accountman")
+        pos_order = self.env['pos.order'].search([('partner_id', '=', test_partner.id)], limit=1)
+
+        self.assertEqual(pos_order.lines[0].qty, 12.0, "quantity should be 12.0")
+        self.assertEqual(pos_order.lines[0].price_unit, 0.83, "price of product should be 0.83")
+
+    def test_quantity_updated_settle(self):
+        """
+        Tests that the quantity is updated when partially settling an order, so that the
+        settle displays the right amount that still needs to be settled.
+        """
+        product_a = self.env['product.product'].create({
+            'name': 'Product A',
+            'lst_price': 10.0,
+        })
+        self.env['sale.order'].create({
+            'partner_id': self.env['res.partner'].create({'name': 'Test Partner'}).id,
+            'order_line': [(0, 0, {
+                'product_id': product_a.id,
+                'product_uom_qty': 5,
+                'price_unit': product_a.lst_price,
+            })]
+        })
+        self.main_pos_config.open_ui()
+        self.start_tour("/pos/ui?config_id=%d" % self.main_pos_config.id, 'test_quantity_updated_settle', login="accountman")
+
+    def test_sale_order_fp_different_from_partner_one(self):
+        """
+        Tests that the fiscal position of the sale order is not the same as the partner's fiscal position.
+        The PoS should always use the fiscal position of the sale order when settling it.
+        """
+        tax = self.env['account.tax'].create({
+            'name': 'Base Tax',
+            'amount': 15,
+        })
+        tax_override_1 = self.env['account.tax'].create({
+            'name': 'Tax Override 1',
+            'amount': 100,
+            'amount_type': 'percent',
+        })
+        tax_override_2 = self.env['account.tax'].create({
+            'name': 'Tax Override 2',
+            'amount': 0,
+            'amount_type': 'percent',
+        })
+        fp_1 = self.env['account.fiscal.position'].create({
+            'name': "Partner FP",
+            'tax_ids': [(0, 0, {
+                'tax_src_id': tax.id,
+                'tax_dest_id': tax_override_1.id
+            })]
+        })
+        fp_2 = self.env['account.fiscal.position'].create({
+            'name': "Sale Order FP",
+            'tax_ids': [(0, 0, {
+                'tax_src_id': tax.id,
+                'tax_dest_id': tax_override_2.id
+            })]
+        })
+        product_a = self.env['product.product'].create({
+            'name': 'Product A',
+            'available_in_pos': True,
+            'lst_price': 10.0,
+            'taxes_id': [tax.id],
+        })
+        partner_test = self.env['res.partner'].create({
+            'name': 'Test Partner',
+            'property_account_position_id': fp_1.id,
+        })
+        sale_a = self.env['sale.order'].create({
+            'partner_id': partner_test.id,
+            'order_line': [(0, 0, {
+                'product_id': product_a.id,
+                'product_uom_qty': 1,
+                'price_unit': product_a.lst_price,
+            })]
+        })
+        sale_b = self.env['sale.order'].create({
+            'partner_id': partner_test.id,
+            'fiscal_position_id': fp_2.id,
+            'order_line': [(0, 0, {
+                'product_id': product_a.id,
+                'product_uom_qty': 1,
+                'price_unit': product_a.lst_price,
+            })]
+        })
+        # Disable fiscal position in POS, it should works anyway.
+        self.main_pos_config.write({
+            'tax_regime_selection': False,
+            'default_fiscal_position_id': False,
+            'fiscal_position_ids': [odoo.Command.clear()],
+        })
+        self.assertEqual(sale_a.fiscal_position_id, fp_1, "Sale order should have the fiscal position of the partner")
+        self.assertEqual(sale_a.amount_total, 20, "Sale order amount should be 20 with the tax override 1")
+        self.assertEqual(sale_a.amount_untaxed, 10, "Sale order untaxed amount should be 10 with the tax override 1")
+        self.assertEqual(sale_b.fiscal_position_id, fp_2, "Sale order should have the fiscal position set on the sale order")
+        self.assertEqual(sale_b.amount_total, 10, "Sale order amount should be 10 with the tax override 2")
+        self.assertEqual(sale_b.amount_untaxed, 10, "Sale order untaxed amount should be 10 with the tax override 2")
+        self.start_pos_tour("test_sale_order_fp_different_from_partner_one", login="accountman")
+
+        pos_order_a = self.env['pos.order'].search([('fiscal_position_id', '=', fp_1.id)], limit=1, order='id desc')
+        pos_order_b = self.env['pos.order'].search([('fiscal_position_id', '=', fp_2.id)], limit=1, order='id desc')
+        self.assertEqual(pos_order_a.amount_total, 20, "PoS order amount should be 20 with the tax override 1")
+        self.assertEqual(pos_order_a.amount_tax, 10, "PoS order untaxed amount should be 10 with the tax override 1")
+        self.assertEqual(pos_order_a.lines[0].tax_ids, tax_override_1, "PoS order should have the tax override 1")
+        self.assertEqual(pos_order_b.amount_total, 10, "PoS order amount should be 10 with the tax override 2")
+        self.assertEqual(pos_order_b.amount_tax, 0, "PoS order untaxed amount should be 10 with the tax override 2")
+        self.assertEqual(pos_order_b.lines[0].tax_ids, tax_override_2, "PoS order should have the tax override 2")

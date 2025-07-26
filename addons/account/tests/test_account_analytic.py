@@ -13,12 +13,39 @@ class TestAccountAnalyticAccount(AccountTestInvoicingCommon, AnalyticCommon):
         super().setUpClass()
         cls.company_data_2 = cls.setup_other_company()
 
+        cls.env.user.groups_id += cls.env.ref('analytic.group_analytic_accounting')
+
+        # By default, tests are run with the current user set on the first company.
+        cls.env.user.company_id = cls.company_data['company']
+
+        cls.default_plan = cls.env['account.analytic.plan'].create({'name': 'Default'})
+        cls.analytic_account_a = cls.env['account.analytic.account'].create({
+            'name': 'analytic_account_a',
+            'plan_id': cls.default_plan.id,
+            'company_id': False,
+        })
+        cls.analytic_account_b = cls.env['account.analytic.account'].create({
+            'name': 'analytic_account_b',
+            'plan_id': cls.default_plan.id,
+            'company_id': False,
+        })
+        cls.analytic_account_d = cls.env['account.analytic.account'].create({
+            'name': 'analytic_account_d',
+            'plan_id': cls.default_plan.id,
+            'company_id': False,
+        })
+
         cls.cross_plan = cls.env['account.analytic.plan'].create({'name': 'Cross'})
         cls.analytic_account_5 = cls.env['account.analytic.account'].create({
             'name': 'analytic_account_5',
             'plan_id': cls.cross_plan.id,
             'company_id': False,
         })
+
+    def get_analytic_lines(self, invoice):
+        return self.env['account.analytic.line'].search([
+            ('move_line_id', 'in', invoice.line_ids.ids),
+        ]).sorted('amount')
 
     def create_invoice(self, partner, product):
         return self.env['account.move'].create([{
@@ -50,10 +77,6 @@ class TestAccountAnalyticAccount(AccountTestInvoicingCommon, AnalyticCommon):
 
     def test_analytic_lines(self):
         ''' Ensures analytic lines are created when posted and are recreated when editing the account.move'''
-        def get_analytic_lines():
-            return self.env['account.analytic.line'].search([
-                ('move_line_id', 'in', out_invoice.line_ids.ids)
-            ]).sorted('amount')
 
         out_invoice = self.env['account.move'].create([{
             'move_type': 'out_invoice',
@@ -73,7 +96,7 @@ class TestAccountAnalyticAccount(AccountTestInvoicingCommon, AnalyticCommon):
         out_invoice.action_post()
 
         # Analytic lines are created when posting the invoice
-        self.assertRecordValues(get_analytic_lines(), [{
+        self.assertRecordValues(self.get_analytic_lines(out_invoice), [{
             'amount': 100,
             self.analytic_plan_2._column_name(): self.analytic_account_4.id,
             'partner_id': self.partner_a.id,
@@ -90,7 +113,7 @@ class TestAccountAnalyticAccount(AccountTestInvoicingCommon, AnalyticCommon):
             self.analytic_account_3.id: 100,
             self.analytic_account_4.id: 25,
         }
-        self.assertRecordValues(get_analytic_lines(), [{
+        self.assertRecordValues(self.get_analytic_lines(out_invoice), [{
             'amount': 50,
             self.analytic_plan_2._column_name(): self.analytic_account_4.id,
         }, {
@@ -100,7 +123,94 @@ class TestAccountAnalyticAccount(AccountTestInvoicingCommon, AnalyticCommon):
 
         # Analytic lines are deleted when resetting to draft
         out_invoice.button_draft()
-        self.assertFalse(get_analytic_lines())
+        self.assertFalse(self.get_analytic_lines(out_invoice))
+
+    def test_analytic_lines_rounding(self):
+        """ Ensures analytic lines rounding errors are spread across all lines, in such a way that summing them gives the right amount.
+        For example, when distributing 100% of the the price, the sum of analytic lines should be exactly equal to the price. """
+
+        # in this scenario,
+        # 94% of 182.25 = 171.315 rounded to 171.32
+        # 2% of 182.25 = 3.645 rounded to 3.65
+        # 3 * 3.65 + 171.32 = 182.27
+        # we remove 0.01 to two lines to counter the rounding errors.
+        out_invoice = self.env['account.move'].create([{
+            'move_type': 'out_invoice',
+            'partner_id': self.partner_a.id,
+            'date': '2017-01-01',
+            'invoice_date': '2017-01-01',
+            'invoice_line_ids': [Command.create({
+                'product_id': self.product_a.id,
+                'price_unit': 182.25,
+                'analytic_distribution': {
+                    self.analytic_account_a.id: 94,
+                    self.analytic_account_b.id: 2,
+                    self.analytic_account_5.id: 2,
+                    self.analytic_account_d.id: 2,
+                },
+            })]
+        }])
+
+        out_invoice.action_post()
+
+        self.assertRecordValues(self.get_analytic_lines(out_invoice), [
+            {
+                'amount': 3.64,
+                self.default_plan._column_name(): self.analytic_account_b.id,
+                self.cross_plan._column_name(): None,
+            },
+            {
+                'amount': 3.65,
+                self.default_plan._column_name(): self.analytic_account_d.id,
+                self.cross_plan._column_name(): None,
+            },
+            {
+                'amount': 3.65,
+                self.default_plan._column_name(): None,
+                self.cross_plan._column_name(): self.analytic_account_5.id,
+            },
+            {
+                'amount': 171.31,
+                self.default_plan._column_name(): self.analytic_account_a.id,
+                self.cross_plan._column_name(): None,
+            },
+        ])
+
+        out_invoice.button_draft()
+        # in this scenario,
+        # 25% of 182.25 = 45.5625 rounded to 45.56
+        # 45.56 * 4 = 182.24
+        # we add 0.01 to one of the line to counter the rounding errors.
+        out_invoice.invoice_line_ids[0].analytic_distribution = {
+            self.analytic_account_a.id: 25,
+            self.analytic_account_b.id: 25,
+            self.analytic_account_5.id: 25,
+            self.analytic_account_d.id: 25,
+        }
+        out_invoice.action_post()
+
+        self.assertRecordValues(self.get_analytic_lines(out_invoice), [
+            {
+                'amount': 45.56,
+                self.default_plan._column_name(): self.analytic_account_d.id,
+                self.cross_plan._column_name(): None,
+            },
+            {
+                'amount': 45.56,
+                self.default_plan._column_name(): None,
+                self.cross_plan._column_name(): self.analytic_account_5.id,
+            },
+            {
+                'amount': 45.56,
+                self.default_plan._column_name(): self.analytic_account_b.id,
+                self.cross_plan._column_name(): None,
+            },
+            {
+                'amount': 45.57,
+                self.default_plan._column_name(): self.analytic_account_a.id,
+                self.cross_plan._column_name(): None,
+            },
+        ])
 
     def test_model_score(self):
         """Test that the models are applied correctly based on the score"""
@@ -522,3 +632,135 @@ class TestAccountAnalyticAccount(AccountTestInvoicingCommon, AnalyticCommon):
             company=self.company.id,
         )
         self.assertTrue(plans_json)
+
+    def test_analytic_distribution_with_discount(self):
+        """Ensure that discount lines include analytic distribution when a discount expense account is set."""
+
+        # Create discount expense account
+        self.company_data['company'].account_discount_expense_allocation_id = self.env['account.account'].create({
+            'name': 'Discount Expense',
+            'code': 'DIS',
+            'account_type': 'expense',
+            'reconcile': False,
+        })
+
+        # Create invoice with 2 lines: each has a discount and analytic distribution
+        out_invoice = self.env['account.move'].create([{
+            'move_type': 'out_invoice',
+            'partner_id': self.partner_a.id,
+            'date': '2017-01-01',
+            'invoice_date': '2017-01-01',
+            'invoice_line_ids': [Command.create({
+                'product_id': self.product_a.id,
+                'tax_ids': [Command.clear()],
+                'price_unit': 200.0,
+                'discount': 20,  # 40.0 discount
+                'analytic_distribution': {
+                    self.analytic_account_1.id: 100,
+                },
+            }), Command.create({
+                'product_id': self.product_b.id,
+                'tax_ids': [Command.clear()],
+                'price_unit': 200.0,
+                'discount': 10,  # 20.0 discount
+                'analytic_distribution': {
+                    self.analytic_account_2.id: 100,
+                },
+            })]
+        }])
+        out_invoice.action_post()
+        self.assertRecordValues(out_invoice.line_ids, [{
+            'display_type': 'product',
+            'balance': -160.0,
+            'analytic_distribution': {str(self.analytic_account_1.id): 100},
+        }, {
+            'display_type': 'product',
+            'balance': -180.0,
+            'analytic_distribution': {str(self.analytic_account_2.id): 100},
+        }, {
+            'display_type': 'discount',
+            'balance': -40.0,
+            'analytic_distribution': {str(self.analytic_account_1.id): 100}
+        }, {
+            'display_type': 'discount',
+            'balance': 60.0,
+            'analytic_distribution': {
+                str(self.analytic_account_1.id): 66.67,
+                str(self.analytic_account_2.id): 33.33,
+            }
+        }, {
+            'display_type': 'discount',
+            'balance': -20.0,
+            'analytic_distribution': {str(self.analytic_account_2.id): 100}
+        }, {
+            'display_type': 'payment_term',
+            'balance': 340.0,
+            'analytic_distribution': False,
+        }])
+
+    def test_synchronization_between_analytic_distribution_and_analytic_lines(self):
+        """ Test creating, updating, and deleting analytic lines and ensure the changes are reflected in move_line's analytic_distribution. """
+        # Create an invoice with analytic distribution
+        invoice = self.env['account.move'].create({
+            'move_type': 'out_invoice',
+            'partner_id': self.partner_a.id,
+            'date': '2023-01-01',
+            'invoice_date': '2023-01-01',
+            'invoice_line_ids': [
+                Command.create({
+                    'product_id': self.product_a.id,
+                    'price_unit': 100.0,
+                    'analytic_distribution': {
+                        self.analytic_account_1.id: 40,
+                        self.analytic_account_2.id: 60,
+                    },
+                }),
+            ],
+        })
+
+        # Post the invoice
+        invoice.action_post()
+
+        # Fetch the associated move line and analytic lines
+        invoice_line = invoice.invoice_line_ids
+        analytic_lines = invoice_line.analytic_line_ids.sorted('amount')
+
+        # Update the account of the first analytic line
+        analytic_lines[0].write({
+            self.analytic_account_3.plan_id._column_name(): self.analytic_account_3.id,
+            'amount': 50,
+        })
+        self.assertEqual(invoice_line.analytic_distribution, {
+            f"{self.analytic_account_1.id},{self.analytic_account_3.id}": 50,
+            f"{self.analytic_account_2.id}": 60,
+        })
+
+        # Delete the first analytic line
+        analytic_lines[0].unlink()
+        self.assertEqual(invoice_line.analytic_distribution, {
+            f"{self.analytic_account_2.id}": 60,
+        })
+
+        # Create analytic line
+        self.env['account.analytic.line'].create({
+            'name': 'Extra Analytic Line',
+            'account_id': self.analytic_account_1.id,
+            'amount': 30,
+            'move_line_id': invoice_line.id,
+        })
+        self.assertEqual(invoice_line.analytic_distribution, {
+            f"{self.analytic_account_1.id}": 30,
+            f"{self.analytic_account_2.id}": 60,
+        })
+
+        # Unlink from a move line
+        analytic_lines = invoice.invoice_line_ids.analytic_line_ids
+        analytic_lines.move_line_id = False
+        self.assertFalse(invoice_line.analytic_distribution)
+
+        # Link to a move line
+        analytic_lines.move_line_id = invoice_line
+        self.assertEqual(invoice_line.analytic_distribution, {
+            f"{self.analytic_account_1.id}": 30,
+            f"{self.analytic_account_2.id}": 60,
+        })

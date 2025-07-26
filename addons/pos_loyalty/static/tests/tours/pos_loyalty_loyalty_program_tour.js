@@ -329,3 +329,38 @@ registry.category("web_tour.tours").add("PosLoyaltyMultipleOrders", {
             PosLoyalty.finalizeOrder("Cash", "10"),
         ].flat(),
 });
+
+registry.category("web_tour.tours").add("test_buy_x_get_y_reward_qty", {
+    steps: () =>
+        [
+            Chrome.startPoS(),
+            Dialog.confirm("Open Register"),
+            ProductScreen.addOrderline("Whiteboard Pen", "10"),
+            ProductScreen.clickDisplayedProduct("Whiteboard Pen"),
+            PosLoyalty.hasRewardLine("Free Product - Whiteboard Pen", "-3.20", "1.00"),
+            ProductScreen.clickDisplayedProduct("Whiteboard Pen"),
+            PosLoyalty.hasRewardLine("Free Product - Whiteboard Pen", "-6.40", "2.00"),
+            PosLoyalty.finalizeOrder("Cash", "32"),
+            ProductScreen.addOrderline("Whiteboard Pen", "10"),
+            PosLoyalty.claimReward("Free Product - Whiteboard Pen"),
+            PosLoyalty.hasRewardLine("Free Product - Whiteboard Pen", "-9.60", "3.00"),
+            PosLoyalty.finalizeOrder("Cash", "32"),
+        ].flat(),
+});
+
+registry.category("web_tour.tours").add("test_max_usage_partner_with_point", {
+    steps: () =>
+        [
+            Chrome.startPoS(),
+            Dialog.confirm("Open Register"),
+            ProductScreen.clickPartnerButton(),
+            ProductScreen.clickCustomer("Test Partner 2"),
+            ProductScreen.addOrderline("Desk Organizer", "3"),
+            PosLoyalty.claimReward("100% on your order"),
+            PosLoyalty.finalizeOrder("Cash", "0"),
+            ProductScreen.clickPartnerButton(),
+            ProductScreen.clickCustomer("Test Partner"),
+            ProductScreen.addOrderline("Desk Organizer", "3"),
+            PosLoyalty.isRewardButtonHighlighted(false),
+        ].flat(),
+});

@@ -1285,7 +1285,8 @@ export const formatSelection = (editor, formatName, {applyStyle, formatProps} = 
 
     const selectedNodes = getSelectedNodes(editor.editable).filter(
         (n) =>
-            ((n.nodeType === Node.TEXT_NODE && (isVisibleTextNode(n) || isZWS(n))) ||
+            ((n.nodeType === Node.TEXT_NODE &&
+                (isVisibleTextNode(n) || isZWS(n) || (/^\n+$/.test(n.nodeValue) && !applyStyle))) ||
                 n.nodeName === "BR") &&
             closestElement(n).isContentEditable
     );
@@ -1301,12 +1302,13 @@ export const formatSelection = (editor, formatName, {applyStyle, formatProps} = 
         let parentNode = node.parentElement;
 
         // Remove the format on all inline ancestors until a block or an element
-        // with a class that is not related to font size (in case the formatting
-        // comes from the class).
+        // with a class that is not related to font size or color (in case the
+        // formatting comes from the class).
         while (
             parentNode && !isBlock(parentNode) &&
             !isUnbreakable(parentNode) && !isUnbreakable(currentNode) &&
-            (parentNode.classList.length === 0 ||
+            (parentNode.nodeName === "FONT" ||
+                parentNode.classList.length === 0 ||
                 [...parentNode.classList].every(cls => FONT_SIZE_CLASSES.includes(cls)))
         ) {
             const isUselessZws = parentNode.tagName === 'SPAN' &&
@@ -1667,8 +1669,12 @@ export function hasAnyFontSizeClass(node) {
  * @returns {boolean}
  */
 export function isSelectionFormat(editable, format) {
-    const selectedNodes = getTraversedNodes(editable)
-        .filter((n) => n.nodeType === Node.TEXT_NODE && n.nodeValue.replaceAll(ZWNBSP_CHAR, '').length);
+    const selectedNodes = getTraversedNodes(editable).filter(
+        (n) =>
+            n.nodeType === Node.TEXT_NODE &&
+            n.nodeValue.replaceAll(ZWNBSP_CHAR, "").length &&
+            (!/^\n+$/.test(n.nodeValue) || !isBlock(closestElement(n)))
+    );
     const isFormatted =
         format === "setFontSizeClassName" ? hasAnyFontSizeClass : formatsSpecs[format].isFormatted;
     return selectedNodes.length && selectedNodes.every(n => isFormatted(n, editable));

@@ -241,8 +241,20 @@ registry.category("web_tour.tours").add("CashClosingDetails", {
             ProductScreen.closeWithCashAmount("50.0"),
             ProductScreen.cashDifferenceIs("-1.00"),
             Dialog.confirm("Close Register"),
-            Dialog.confirm("Proceed Anyway", ".btn-primary"),
-            Chrome.clickBtn("Backend"),
+            {
+                trigger: ".modal .btn-primary:contains(Proceed Anyway)",
+                run: "click",
+                expectUnloadPage: true,
+            },
+            {
+                trigger: "button:contains(backend)",
+                run: "click",
+                expectUnloadPage: true,
+            },
+            {
+                trigger: "body",
+                expectUnloadPage: true,
+            },
             ProductScreen.lastClosingCashIs("50.00"),
         ].flat(),
 });
@@ -601,5 +613,39 @@ registry.category("web_tour.tours").add("FiscalPositionTaxLabels", {
                 content: "Make sure receipt tax label is correct and correspond to the orderline",
                 trigger: ".pos-receipt-taxes:contains('Tax Group 2')",
             },
+        ].flat(),
+});
+
+registry.category("web_tour.tours").add("test_barcode_search_attributes_preset", {
+    steps: () =>
+        [
+            Chrome.startPoS(),
+            Dialog.confirm("Open Register"),
+
+            ProductScreen.searchProduct("12341357"),
+            ProductScreen.clickDisplayedProduct("Product with Attributes"),
+            {
+                content: "Check that the product configurator is opened",
+                trigger: ".section-product-info-title:contains('Product with Attributes')",
+            },
+            Dialog.confirm("Add"),
+            ProductScreen.selectedOrderlineHas(
+                "Product with Attributes (Value 1, Value 3, Value 5, Value 7)",
+                "1.0"
+            ),
+
+            ProductScreen.searchProduct("12342468"),
+            ProductScreen.clickDisplayedProduct("Product with Attributes"),
+            {
+                content: "Check that the product configurator is opened",
+                trigger: ".section-product-info-title:contains('Product with Attributes')",
+            },
+            Dialog.confirm("Add"),
+            ProductScreen.selectedOrderlineHas(
+                "Product with Attributes (Value 2, Value 4, Value 6, Value 8)",
+                "1.0"
+            ),
+
+            Chrome.endTour(),
         ].flat(),
 });

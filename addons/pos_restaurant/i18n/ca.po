@@ -17,6 +17,7 @@
 # Manel Fernandez Ramirez <manelfera@outlook.com>, 2024
 # marcescu, 2025
 # EstudiTIC - estuditic.com <odoo@estuditic.com>, 2025
+# Wil Odoo, 2025
 # Noemi Pla, 2025
 # 
 msgid ""
@@ -390,7 +391,7 @@ msgstr "Dissenya els pisos i assigna ordres a les taules"
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/overrides/models/pos_store.js:0
 msgid "Dine in"
-msgstr ""
+msgstr "Menjar al local"
 
 #. module: pos_restaurant
 #: model:ir.model.fields,field_description:pos_restaurant.field_restaurant_floor__display_name
@@ -1165,7 +1166,7 @@ msgstr "Taula"
 #. odoo-javascript
 #: code:addons/pos_restaurant/static/src/overrides/components/receipt_header_patch.js:0
 msgid "Table %(number)s"
-msgstr ""
+msgstr "Taula %(number)s"
 
 #. module: pos_restaurant
 #. odoo-javascript

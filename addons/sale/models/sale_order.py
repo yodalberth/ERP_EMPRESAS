@@ -533,7 +533,7 @@ class SaleOrder(models.Model):
                     currency_id=currency,
                     sign=1,
                     special_type='early_payment',
-                    tax_ids=line.tax_id,
+                    tax_ids=line.tax_id.flatten_taxes_hierarchy().filtered(lambda tax: tax.amount_type != 'fixed'),
                 ))
                 epd_lines.append(self.env['account.tax']._prepare_base_line_for_taxes_computation(
                     record=self,
@@ -1161,6 +1161,7 @@ class SaleOrder(models.Model):
         # We don't need it and it creates issues in the creation of linked records.
         context = self._context.copy()
         context.pop('default_name', None)
+        context.pop('default_user_id', None)
 
         self.with_context(context)._action_confirm()
         user = self[:1].create_uid

@@ -3,7 +3,7 @@
 # 	* mass_mailing
 # 
 # Translators:
-# Wil Odoo, 2024
+# Wil Odoo, 2025
 # Tony Ng, 2025
 # 
 msgid ""
@@ -1983,7 +1983,7 @@ msgstr "電郵內容"
 #: model:ir.ui.menu,name:mass_mailing.mass_mailing_menu_root
 #: model_terms:ir.ui.view,arch_db:mass_mailing.res_config_settings_view_form
 msgid "Email Marketing"
-msgstr "電郵市場行銷"
+msgstr "電郵推廣"
 
 #. module: mass_mailing
 #. odoo-python
@@ -3037,7 +3037,7 @@ msgstr "手動"
 #. module: mass_mailing
 #: model_terms:ir.ui.view,arch_db:mass_mailing.mailing_trace_view_form
 msgid "Marketing"
-msgstr "市場行銷"
+msgstr "市場推廣"
 
 #. module: mass_mailing
 #: model_terms:ir.ui.view,arch_db:mass_mailing.email_designer_snippets
@@ -3124,7 +3124,7 @@ msgstr "媒體標題"
 #: model_terms:ir.ui.view,arch_db:mass_mailing.snippet_options
 #: model_terms:ir.ui.view,arch_db:mass_mailing.view_mail_mass_mailing_form
 msgid "Medium"
-msgstr "媒體"
+msgstr "中"
 
 #. module: mass_mailing
 #. odoo-javascript

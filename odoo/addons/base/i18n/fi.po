@@ -2456,6 +2456,8 @@ msgid ""
 "\n"
 "Adds the support for services intrastat codes.\n"
 msgstr ""
+"\n"
+"Lisää tuen palveluiden intrastat-koodeille.\n"
 
 #. module: base
 #: model:ir.module.module,description:base.module_quality_mrp
@@ -6703,6 +6705,9 @@ msgid ""
 "Intrastat Reports for Services\n"
 "==============================\n"
 msgstr ""
+"\n"
+"Intrastat-raportit palveluille\n"
+"==============================\n"
 
 #. module: base
 #: model:ir.module.module,description:base.module_l10n_dk_intrastat
@@ -14045,7 +14050,9 @@ msgstr ""
 msgid ""
 "<span invisible=\"evaluation_type != 'value' or update_field_type not in "
 "['one2many', 'many2many']\">by</span>"
-msgstr " "
+msgstr ""
+"<span invisible=\"evaluation_type != 'value' or update_field_type not in "
+"['one2many', 'many2many']\">tavalla</span>"
 
 #. module: base
 #: model_terms:ir.ui.view,arch_db:base.view_partner_form
@@ -19279,7 +19286,7 @@ msgstr "Belgialainen Intrastat-ilmoitus"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_l10n_be_intrastat_services
 msgid "Belgian Intrastat Declaration (Services)"
-msgstr ""
+msgstr "Belgian Intrastat-ilmoitus (palvelut)"
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_l10n_be_pos_restaurant
@@ -26340,7 +26347,7 @@ msgstr "Ranskan Intrastat-ilmoitus"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_l10n_fr_intrastat_services
 msgid "French Intrastat Declaration (Services)"
-msgstr ""
+msgstr "Ranskan Intrastat-ilmoitus (palvelut)"
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_l10n_fr_hr_payroll
@@ -28962,7 +28969,7 @@ msgstr "Intrastat-raportit"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_account_intrastat_services
 msgid "Intrastat Reports for Services"
-msgstr ""
+msgstr "Intrastat-raportin palveluille"
 
 #. module: base
 #: model_terms:ir.ui.view,arch_db:base.report_irmodulereference

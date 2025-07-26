@@ -161,16 +161,16 @@ class AlarmManager(models.AbstractModel):
         now = fields.Datetime.now()
         self.env.cr.execute(SQL("""
             SELECT alarm.id, event.id
-            FROM calendar_event AS event
-            JOIN calendar_alarm_calendar_event_rel AS event_alarm_rel
+              FROM calendar_event AS event
+              JOIN calendar_alarm_calendar_event_rel AS event_alarm_rel
                 ON event.id = event_alarm_rel.calendar_event_id
-            JOIN calendar_alarm AS alarm
+              JOIN calendar_alarm AS alarm
                 ON event_alarm_rel.calendar_alarm_id = alarm.id
-            WHERE alarm.alarm_type = %s
-            AND event.active
-            AND event.start - CAST(alarm.duration || ' ' || alarm.interval AS Interval) >= %s
-            AND event.start - CAST(alarm.duration || ' ' || alarm.interval AS Interval) < %s
-            %s
+             WHERE alarm.alarm_type = %s
+               AND event.active
+               AND event.start - CAST(alarm.duration || ' ' || alarm.interval AS Interval) >= %s
+               AND event.start - CAST(alarm.duration || ' ' || alarm.interval AS Interval) < %s
+               %s
         """,
             alarm_type,
             lastcall,

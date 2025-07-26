@@ -65,7 +65,7 @@
     <record id="action_ncf_range" model="ir.actions.act_window">
         <field name="name">NCF Ranges</field>
         <field name="res_model">ncf.range</field>
-        <field name="view_mode">tree,form,kanban</field>
+        <field name="view_mode">list,form,kanban</field>
         <field name="help">Manage DGII NCF ranges</field>
     </record>
 

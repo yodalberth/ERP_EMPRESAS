@@ -37,6 +37,35 @@ class TestNCFRange(TransactionCase):
                 'move_type': 'out_invoice',
                 'journal_id': self.journal.id,
                 'partner_id': self.env['res.partner'].create({'name': 'P'}).id,
+                'apply_ncf': True,
                 'invoice_line_ids': [(0, 0, {'name': 'l', 'price_unit': 10})],
             })
+
+    def test_partner_default_apply_ncf(self):
+        partner = self.env['res.partner'].create({
+            'name': 'Requiring Partner',
+            'ncf_required': True,
+            'default_ncf_type': 'B01',
+        })
+        invoice = self.env['account.move'].create({
+            'move_type': 'out_invoice',
+            'journal_id': self.journal.id,
+            'partner_id': partner.id,
+            'invoice_line_ids': [(0, 0, {'name': 'l', 'price_unit': 10})],
+        })
+        self.assertTrue(invoice.apply_ncf)
+        self.assertEqual(invoice.ncf_type, 'B01')
+
+    def test_post_without_ncf(self):
+        partner = self.env['res.partner'].create({'name': 'No NCF'})
+        invoice = self.env['account.move'].create({
+            'move_type': 'out_invoice',
+            'journal_id': self.journal.id,
+            'partner_id': partner.id,
+            'apply_ncf': False,
+            'invoice_line_ids': [(0, 0, {'name': 'l', 'price_unit': 10})],
+        })
+        invoice.action_post()
+        self.assertFalse(invoice.ncf_number)
+
 

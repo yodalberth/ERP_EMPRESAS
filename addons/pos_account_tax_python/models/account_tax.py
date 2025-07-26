@@ -6,4 +6,7 @@ class AccountTax(models.Model):
 
     @api.model
     def _load_pos_data_fields(self, config_id):
-        return super()._load_pos_data_fields(config_id) + ['formula_decoded_info']
+        return (
+            super()._load_pos_data_fields(config_id)
+            + ['formula_decoded_info']
+        )

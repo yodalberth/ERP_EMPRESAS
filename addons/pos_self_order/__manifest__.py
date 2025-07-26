@@ -2,7 +2,10 @@
 {
     "name": "POS Self Order",
     'version': '1.0',
-    "summary": "Addon for the POS App that allows customers to view the menu on their smartphone.",
+    "summary": (
+        "Addon for the POS App that allows customers "
+        "to view the menu on their smartphone."
+    ),
     "category": "Sales/Point Of Sale",
     "depends": ["pos_restaurant", "http_routing"],
     "auto_install": ["pos_restaurant"],
@@ -48,7 +51,10 @@
             'web/static/lib/bootstrap/js/dist/base-component.js',
             "web/static/lib/bootstrap/js/dist/carousel.js",
             'web/static/lib/bootstrap/js/dist/scrollspy.js',
-            "point_of_sale/static/src/app/store/models/product_custom_attribute.js",
+            (
+                "point_of_sale/static/src/app/store/models/"
+                "product_custom_attribute.js"
+            ),
             'web_editor/static/src/js/editor/odoo-editor/src/base_style.scss',
             'web_editor/static/src/scss/web_editor.common.scss',
             "point_of_sale/static/src/app/generic_components/numpad/*",
@@ -66,7 +72,10 @@
             "pos_self_order/static/src/app/**/*",
             "point_of_sale/static/src/app/printer/hw_printer.js",
             "web/static/src/core/utils/render.js",
-            "pos_self_order/static/src/app/store/order_change_receipt_template.xml",
+            (
+                "pos_self_order/static/src/app/store/"
+                "order_change_receipt_template.xml"
+            ),
             "account/static/src/helpers/*.js",
             "web/static/src/views/fields/parsers.js",
 

@@ -1,6 +1,6 @@
 {
     'name': 'DGII NCF Manager',
-    'version': '1.0.0',
+    'version': '18.0.0',
     'summary': 'Manage DGII NCF ranges for Dominican Republic',
     'category': 'Accounting',
     'author': 'Your Company',

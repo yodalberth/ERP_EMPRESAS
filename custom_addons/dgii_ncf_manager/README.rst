@@ -8,6 +8,7 @@ Features
 * Maintain ranges of NCF numbers with automatic expiration checks.
 * Add a checkbox "¿Aplicar NCF?" on invoices so sellers decide whether to assign an NCF.
 * Partners can specify if they require NCF and which type is suggested by default.
+* A boolean field ``Requiere NCF`` on partners preselects the NCF option when creating invoices.
 * Journals may define a default NCF type without forcing it on all invoices.
 * Scheduled job marks exhausted or expired ranges automatically.
 * Post-init hook adds missing partner fields during upgrades.

@@ -1,11 +1,15 @@
 {
     'name': 'DGII NCF Manager',
-    'version': '18.0.0',
+    'version': '18.0.1.0.0',
     'summary': 'Manage DGII NCF ranges for Dominican Republic',
+    'description': 'Handle fiscal receipt numbers (NCF) with optional usage per invoice.',
     'category': 'Accounting',
-    'author': 'Your Company',
+    'author': 'Odoo Community Association (OCA)',
+    'maintainers': ['codex'],
+    'website': 'https://github.com/OCA/l10n-dominicana',
     'license': 'LGPL-3',
     'depends': [
+        'base',
         'account'
     ],
     'data': [
@@ -22,4 +26,6 @@
     ],
     'installable': True,
     'application': True,
+    'post_init_hook': 'post_init_hook',
+    'auto_install': False,
 }

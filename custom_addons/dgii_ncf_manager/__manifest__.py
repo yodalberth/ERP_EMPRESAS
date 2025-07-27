@@ -7,8 +7,9 @@
     'author': 'Odoo Community Association (OCA)',
     'maintainers': ['codex'],
     'website': 'https://github.com/OCA/l10n-dominicana',
-    'license': 'AGPL-3',
+    'license': 'LGPL-3',
     'depends': [
+        'base',
         'account'
     ],
     'data': [

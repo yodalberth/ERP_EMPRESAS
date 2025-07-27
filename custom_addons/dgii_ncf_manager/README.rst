@@ -1,7 +1,7 @@
 DGII NCF Manager
 ================
 
-This module manages fiscal receipt numbers (NCF) for companies in the Dominican Republic. It follows the OCA guidelines so the NCF features remain optional and modular.
+This module manages fiscal receipt numbers (NCF) issued by the Dominican tax authority (DGII). It follows the OCA guidelines so features are modular and NCF usage is optional on each invoice.
 
 Features
 --------

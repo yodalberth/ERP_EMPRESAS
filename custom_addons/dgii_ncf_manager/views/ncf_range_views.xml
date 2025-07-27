@@ -3,8 +3,9 @@
     <record id="view_ncf_range_tree" model="ir.ui.view">
         <field name="name">ncf.range.tree</field>
         <field name="model">ncf.range</field>
+        <field name="type">list</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="name"/>
                 <field name="ncf_type"/>
                 <field name="sequence_start"/>
@@ -12,7 +13,7 @@
                 <field name="current_ncf"/>
                 <field name="expiration_date"/>
                 <field name="state"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -64,7 +65,7 @@
     <record id="action_ncf_range" model="ir.actions.act_window">
         <field name="name">NCF Ranges</field>
         <field name="res_model">ncf.range</field>
-        <field name="view_mode">tree,form,kanban</field>
+        <field name="view_mode">list,form,kanban</field>
         <field name="help">Manage DGII NCF ranges</field>
     </record>
 
